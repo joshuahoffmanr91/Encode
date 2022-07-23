@@ -8,7 +8,6 @@
         declare -a Side=(${Side[@]//[![:print:]]})
         Side=(${Side[@]//['\\'|\*]}) && Side+=('\' '\*')
         declare -A Down[\\${Side[B++]}]={00..98}
-        echo ${#Side[@]}
 
                 for Right in $@; do
                 echo ${Down[$Right]}
@@ -16,5 +15,6 @@
                 done
 
         }
+
 
 Encode ${@//?()/\\} && echo ${Left[@]}
