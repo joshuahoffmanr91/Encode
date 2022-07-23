@@ -1,0 +1,19 @@
+#!/bin/bash
+
+
+        Encode () {
+
+        declare -A Flip[$((A++))]='\\'x{{0..9},{a..f}}{{0..9},{a..f}}
+        declare -a Side=($(eval echo -e \${Flip[{0..255}]/\#/'\\'}))
+        declare -a Side=(${Side[@]//[![:print:]]}) | xargs cat -A
+        declare -A Down[${Side[$((C--))]}]={000..255}
+
+                for Right in $@; do
+                echo ${Down[$Right]}
+                Left+=(${Down[$Right]})
+                done
+
+        }
+
+
+Encode ${@//?()/\\} && echo ${Left[@]}
