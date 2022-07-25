@@ -1,20 +1,29 @@
 #!/bin/bash
 
 
+
         Encode () {
 
-        declare -A Flip[$((A++))]='\\'x{{0..9},{a..f}}{{0..9},{a..f}}
-        declare -a Side=($(eval echo -e \${Flip[{0..255}]/\#/'\\'}))
+        declare -A Flip[$((A++))]=\"\\x{{0..9},{a..f}}{{0..9},{a..f}}\"
+        declare -a Side=($(eval echo -e \${Flip[{0..255}]}))
         declare -a Side=(${Side[@]//[![:print:]]})
-        Side=(${Side[@]//['\\'|\*]}) && Side+=('\' '\*')
-        declare -A Down[\\${Side[B++]}]={00..98}
+        Side=(${Side[@]//[\\|\*|\"]} \\ '\*' ' ' $'\n')
+        declare -A Down["\\${Side[B++]}"]={00..98} Down[$'\n']=99
 
-                for Right in $@; do
-                echo ${Down[$Right]}
-                Left+=(${Down[$Right]})
-                done
+
+                case ${1^^} in
+                F) Up="$(cat $2)"
+                eval eval Out+=\(\\\${Down[\\\"\\\${Up:{0..${#Up}}:1}\\\"]}\)
+                echo ${Out[@]} >> $2.tn ;;
+                B) Up=($(cat $2))
+                eval eval Out+=\(\\\"\\\${Side[\\\${Up[{0..${#Up[@]}}]#0}]}\\\"\)
+                [[ -d $2 ]] && In=$2 || In=$2_$(date +'%s');
+                echo -e "${Out[@]/#/\\b}" >> $In;;
+                *) return ${#1}
+                esac
+
 
         }
 
 
-Encode ${@//?()/\\} && echo ${Left[@]}
+Encode "$@"
