@@ -4,24 +4,18 @@
 
         Encode () {
 
-        declare -A Flip[$((A++))]=\"\\x{{0..9},{a..f}}{{0..9},{a..f}}\"
-        declare -a Side=($(eval echo -e \${Flip[{0..255}]}))
-        declare -a Side=(${Side[@]//[![:print:]]})
-        Side=(${Side[@]//[\\|\*|\"]} \\ '\*' ' ' $'\n')
-        declare -A Down["\\${Side[B++]}"]={00..98} Down[$'\n']=99
+        a="$(cat $2)"
+        shopt -s extglob
+        eval A_+=(\$\'\\\\\\{1,0}{0..7}{0..7}\')
+        B_=(${A_[@]//[\\|\*|[:cntrl:]]/})
+        eval declare -A C_[\${B_[D++]/#/\\\\}]={00..96}
+        eval C_[{96..00}]=${B_[$((--D))]/#/\\}
+        C_+=([$'\n']=99 [' ']=98 [\*]=97 [99]=$'\n' [98]=' ' [99]=$'\n')
+        [[ $1 = F ]] && X=1
 
-
-                case ${1^^} in
-                F) Up="$(cat $2)"
-                eval eval Out+=\(\\\${Down[\\\"\\\${Up:{0..${#Up}}:1}\\\"]}\)
-                echo ${Out[@]} >> $2.tn ;;
-                B) Up=($(cat $2))
-                eval eval Out+=\(\\\"\\\${Side[\\\${Up[{0..${#Up[@]}}]#0}]}\\\"\)
-                [[ -d $2 ]] && In=$2 || In=$2_$(date +'%s');
-                echo -e "${Out[@]/#/\\b}" >> $In;;
-                *) return ${#1}
-                esac
-
+                for (( A=0; A <= ${#a}; A=A+${X:=2} )); do
+                echo -n "${C_["${a:$A:${X:=2}}"]}"
+                done
 
         }
 
